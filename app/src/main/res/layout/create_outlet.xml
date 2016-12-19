@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Login">
+
+    <android.support.v7.widget.Toolbar
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        app:theme="@style/MyCustomToolBarTheme"
+        app:popupTheme="@style/MyCustomPopupTheme">
+
+    </android.support.v7.widget.Toolbar>
+
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Outlet Name:"
+        android:id="@+id/textView3"
+        android:textSize="20sp"
+        android:layout_marginTop="100dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="23dp"
+        android:layout_marginStart="23dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Outlet Type:"
+        android:id="@+id/textView4"
+        android:textSize="20sp"
+        android:layout_below="@+id/textView3"
+        android:layout_alignLeft="@+id/textView3"
+        android:layout_alignStart="@+id/textView3"
+        android:layout_marginTop="29dp" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="35dp"
+        android:layout_alignBottom="@id/textView3"
+        android:background="@drawable/customised_edit_text"
+        android:inputType="text"
+        android:id="@+id/editOutletName"
+        android:layout_toRightOf="@+id/textView3"
+        android:layout_alignRight="@+id/countryspinner"
+        android:layout_alignEnd="@+id/countryspinner" />
+
+
+    <Spinner
+        android:layout_width="wrap_content"
+        android:layout_height="45dp"
+        android:id="@+id/outletspinner"
+        android:layout_marginRight="23dp"
+        android:layout_marginTop="10dp"
+        android:layout_below="@+id/editOutletName"
+        android:layout_alignLeft="@+id/editOutletName"
+        android:layout_alignStart="@+id/editOutletName"
+        android:spinnerMode="dropdown" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Country:"
+        android:id="@+id/textcountry"
+        android:textSize="20sp"
+        android:layout_alignBottom="@+id/countryspinner"
+        android:layout_alignLeft="@+id/textView4"
+        android:layout_alignStart="@+id/textView4" />
+
+    <Spinner
+        android:layout_width="wrap_content"
+        android:layout_height="45dp"
+        android:id="@+id/countryspinner"
+        android:spinnerMode="dropdown"
+        android:paddingTop="15sp"
+        android:layout_below="@+id/outletspinner"
+        android:layout_toRightOf="@+id/textView3"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="State:"
+        android:id="@+id/textstate"
+        android:textSize="20sp"
+        android:layout_alignBottom="@+id/statespinner"
+        android:layout_alignLeft="@+id/textcountry"
+        android:layout_alignStart="@+id/textcountry" />
+
+    <Spinner
+        android:layout_width="wrap_content"
+        android:layout_height="45dp"
+        android:id="@+id/statespinner"
+        android:spinnerMode="dropdown"
+        android:paddingTop="15sp"
+        android:layout_below="@+id/countryspinner"
+        android:layout_alignLeft="@+id/countryspinner"
+        android:layout_alignStart="@+id/countryspinner"
+        android:layout_alignEnd="@id/outletspinner"
+        android:layout_alignRight="@id/outletspinner"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="LGA:"
+        android:id="@+id/textlga"
+        android:textSize="20sp"
+        android:layout_alignBottom="@+id/lgaspinner"
+        android:layout_alignLeft="@+id/textstate"
+        android:layout_alignStart="@+id/textstate" />
+
+    <Spinner
+        android:layout_width="wrap_content"
+        android:layout_height="45dp"
+        android:id="@+id/lgaspinner"
+        android:spinnerMode="dropdown"
+        android:paddingTop="15sp"
+        android:layout_below="@+id/statespinner"
+        android:layout_alignLeft="@+id/statespinner"
+        android:layout_alignStart="@+id/statespinner"
+        android:layout_alignEnd="@id/outletspinner"
+        android:layout_alignRight="@id/outletspinner"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="GPS:"
+        android:id="@+id/textGPS"
+        android:layout_below="@+id/textlga"
+        android:layout_alignLeft="@+id/textlga"
+        android:layout_alignStart="@+id/textlga"
+        android:layout_marginTop="29dp"
+        android:textSize="20sp" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="35dp"
+        android:layout_alignBottom="@id/textGPS"
+        android:background="@drawable/customised_edit_text"
+        android:inputType="none"
+        android:id="@+id/editGPS"
+        android:layout_toRightOf="@+id/textGPS"
+        android:layout_alignRight="@+id/lgaspinner"
+        android:layout_alignEnd="@+id/lgaspinner"
+        android:layout_alignStart="@id/lgaspinner"
+        android:layout_alignLeft="@id/lgaspinner"/>
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Address:"
+        android:id="@+id/textView5"
+        android:layout_below="@+id/textGPS"
+        android:layout_alignLeft="@+id/textGPS"
+        android:layout_alignStart="@+id/textGPS"
+        android:layout_marginTop="29dp"
+        android:textSize="20sp" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textMultiLine"
+        android:ems="10"
+        android:id="@+id/editaddress"
+        android:background="@drawable/customised_edit_text"
+        android:layout_alignLeft="@+id/lgaspinner"
+        android:layout_alignStart="@+id/lgaspinner"
+        android:layout_alignBottom="@+id/textView5"
+        android:layout_alignRight="@+id/countryspinner"
+        android:layout_alignEnd="@+id/countryspinner"
+        android:layout_below="@+id/editGPS" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Save Outlet"
+        android:textAllCaps="false"
+        android:id="@+id/btnSave_Outlet"
+        android:background="@drawable/customised_button"
+        android:textColor="@color/button"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="66dp" />
+
+</RelativeLayout>

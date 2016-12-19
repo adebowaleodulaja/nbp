@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="YOUR QUESTION GOES HERE:"
+        android:id="@+id/textQuestion"
+        android:layout_marginTop="20dp" />
+
+    <Spinner
+        android:layout_width="wrap_content"
+        android:layout_height="45dp"
+        android:id="@+id/availabilityOption"
+        android:spinnerMode="dropdown"
+        android:paddingTop="15sp"
+        android:layout_below="@+id/statespinner"
+        android:layout_alignLeft="@+id/statespinner"
+        android:layout_alignStart="@+id/statespinner"
+        android:layout_alignEnd="@id/outletspinner"
+        android:layout_alignRight="@id/outletspinner"/>
+    <!--Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btnOK"
+        android:text="Ok"
+        android:layout_marginEnd="25dp"/-->
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textAlert"
+        android:textColor="#ed0606"
+        android:textSize="15sp"/>
+
+
+</LinearLayout>

@@ -1,0 +1,33 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+
+        <!--<item name="android:actionBarStyle">@style/MyActionBarTheme</item>
+        <item name="android:popupMenuStyle">@style/MyActionBarTheme</item>-->
+    </style>
+
+
+    <style name="MyCustomToolBarTheme" parent="ThemeOverlay.AppCompat.Light">
+
+        <item name="android:textColorPrimary">#ffff</item>
+        <item name="android:textColorSecondary">#ffff</item>
+
+    </style>
+
+    <style name="MyCustomPopupTheme" parent="ThemeOverlay.AppCompat.Light">
+        <item name="android:textColorPrimary">@color/colorPrimary</item> <!--Text colour of the menu item-->
+        <item name="android:background">#ffff</item>
+
+    </style>
+
+
+    <style name="MyCustomIconPlacer" parent="ThemeOverlay.AppCompat.Light"><!--To add icon to edit text-->
+        <item name="android:drawableLeft">@mipmap/nb_launcher</item>
+    </style>
+
+</resources>

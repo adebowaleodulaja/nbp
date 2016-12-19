@@ -1,0 +1,37 @@
+======Screen sizes======
+
+Small       2" to 3.7"
+Normal      3.7" to 4.3"
+Large       4.0" to 7.1"
+Extra Large 7.0" to 10.0"
+
+For text size, use sp
+For widget or view, use dp
+
+====Icons======
+72x72
+48x48
+96x96
+144x144
+192x192
+
+====For background images===
+ldpi:   240x320 px
+mdpi:   320x480 px
+hdpi:   480x800 px
+xhdpi:  720x1280 px
+
+--------Layout-------
+Portrait
+layout
+layout-small   3.7
+layout-normal  3.7 to 4.3
+layout-large   4.0 to 7.1
+layout-xlarge  7.0 to 10.0
+
+Landscape
+layout-land
+layout-small-land   3.7
+layout-normal-land  3.7 to 4.3
+layout-large-land   4.0 to 7.1
+layout-xlarge-land  7.0 to 10.0
