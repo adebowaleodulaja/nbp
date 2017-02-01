@@ -87,6 +87,7 @@ public class MvoQuestionnaireActivity extends AppCompatActivity {
     AlertDialogBuilder alert = new AlertDialogBuilder();
     LocationLocator locationLocator;
     SubQuestion subQuest;
+    String[] answerdropdown, answerdropdownprom;
 
     Toolbar toolbar;
 
@@ -103,8 +104,8 @@ public class MvoQuestionnaireActivity extends AppCompatActivity {
     private static final String QUESTTION_PICTURE = "picture";
     private static final String ANSWER_TYPE = "answertype";
 
-    private String availabilityOption[] = {"Once a week or more", "Twice a month", "Once a quarter", "Less than once a quarter"};
-    private String promotionOption[] = {"Weekly", "Monthly", "Quarterly", "Yearly", "Never"};
+    private String availabilityOption[];//= {"Once a week or more", "Twice a month", "Once a quarter", "Less than once a quarter"};
+    private String promotionOption[];//= {"Weekly", "Monthly", "Quarterly", "Yearly", "Never"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -274,6 +275,26 @@ public class MvoQuestionnaireActivity extends AppCompatActivity {
         return answertype;
     }
 
+    public String[] loadAnsAvailDropDown(int x) {
+        //String[] answerdropdown;
+        for (int i = 0; i < questans.size(); i++) {
+            answerdropdown = questans.get(x).get("answertype").split("-");
+        }
+        return answerdropdown;
+    }
+
+    public String[] loadAnsPromDropDown(int x) {
+        for (int i = 0; i < questans.size(); i++) {
+            if (questans.get(x).get("answertype").contains(":")) {
+                answerdropdownprom = questans.get(x).get("answertype").split(":");
+            }
+            else if (questans.get(x).get("answertype").contains("-")){
+                answerdropdownprom = questans.get(x).get("answertype").split("-");
+            }
+        }
+        return answerdropdownprom;
+    }
+
 
     private String loadDialog(String questionText) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -336,6 +357,10 @@ public class MvoQuestionnaireActivity extends AppCompatActivity {
         View view = inflater.inflate(R.layout.questonnaire_drop_down_loader, null);
         TextView textv = (TextView) view.findViewById(R.id.textQuestion);
         textv.setText(questionText);
+
+        availabilityOption = loadAnsPromDropDown(childID);
+        promotionOption = loadAnsPromDropDown(childID);
+
         if (HeaderString.equalsIgnoreCase("Availability")) {
             spinner = (Spinner) view.findViewById(R.id.availabilityOption);
             ArrayAdapter<String> adapter = new ArrayAdapter<>(MvoQuestionnaireActivity.this, android.R.layout.simple_list_item_1, availabilityOption);
@@ -502,7 +527,7 @@ public class MvoQuestionnaireActivity extends AppCompatActivity {
                 dialog.dismiss();
 
 
-                //Log.e("OPTION_HOLDER", "" + optionHolder);
+                Log.e("OPTION_HOLDER", "" + optionHolder);
             }
         }
     }

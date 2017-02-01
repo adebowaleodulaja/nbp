@@ -87,7 +87,7 @@ public class LocationLocator extends Activity {
     @Override
     protected void onPause() {
         super.onPause();
-        locationManager.removeUpdates(locationListenerGPS);
+        //locationManager.removeUpdates(locationListenerGPS);
 
     }
 
@@ -97,9 +97,9 @@ public class LocationLocator extends Activity {
             longitude = location.getLongitude();
             latitude = location.getLatitude();
 
-            if (longitude != 0 && latitude != 0) {
+            /*if (longitude != 0 && latitude != 0) {
                 locationManager.removeUpdates(locationListenerGPS);//Remove the update to reduce batery life.
-            }
+            }*/
 
             runOnUiThread(new Runnable() {
                 @Override
