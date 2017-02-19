@@ -1,24 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <!--Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btnOK"
+        android:text="Ok"
+        android:layout_marginEnd="25dp"/-->
+
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:id="@+id/textAlert1"
+        android:layout_marginTop="10dp"
         android:layout_marginLeft="10dp"
-        android:text="YOUR QUESTION GOES HERE:"
-        android:id="@+id/textSubQuestion"
-        android:layout_marginTop="20dp" />
+        android:layout_below="@+id/btnNext"
+        android:textColor="#ed0606"
+        android:textSize="15sp"/>
 
     <RadioGroup
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/radioSubQuestions"
-        android:layout_marginLeft="10dp"
         android:orientation="horizontal"
-        android:paddingLeft="?android:attr/expandableListPreferredChildPaddingLeft">
+        android:paddingLeft="?android:attr/expandableListPreferredChildPaddingLeft"
+        android:layout_below="@+id/textSubQuestion"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true">
         <RadioButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -38,32 +50,42 @@
             android:paddingBottom="5dp"/>
 
     </RadioGroup>
-    <!--Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/btnOK"
-        android:text="Ok"
-        android:layout_marginEnd="25dp"/-->
-
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="30dp"
-        android:layout_marginLeft="10dp"
-        android:id="@+id/btnNext"
-        android:text="Next"
-        android:textAllCaps="false"
-        android:textColor="#ffff"
-        android:layout_marginTop="20dp"
-        android:background="@drawable/customised_button"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/textAlert1"
-        android:layout_marginTop="10dp"
-        android:layout_marginLeft="10dp"
-        android:textColor="#ed0606"
-        android:textSize="15sp"/>
+        android:text="YOUR QUESTION GOES HERE:"
+        android:id="@+id/textSubQuestion"
+        android:layout_marginTop="20dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignLeft="@+id/btnNext"
+        android:layout_alignStart="@+id/btnNext" />
 
-</LinearLayout>
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:id="@+id/btnNext"
+        android:text="Next"
+        android:textAllCaps="false"
+        android:textColor="#ffff"
+        android:background="@drawable/customised_button"
+        android:layout_marginTop="17dp"
+        android:layout_below="@+id/radioSubQuestions"
+        android:layout_alignLeft="@+id/textAlert1"
+        android:layout_alignStart="@+id/textAlert1"
+        android:layout_marginLeft="25dp"
+        android:layout_marginStart="25dp" />
+
+   <!-- <Button
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:id="@+id/btnCancel"
+        android:text="Close"
+        android:textAllCaps="false"
+        android:textColor="#ffff"
+        android:background="@drawable/customised_button"
+        android:layout_alignBottom="@+id/btnNext"
+        android:layout_alignRight="@+id/textSubQuestion"
+        android:layout_alignEnd="@+id/textSubQuestion" />-->
+
+</RelativeLayout>

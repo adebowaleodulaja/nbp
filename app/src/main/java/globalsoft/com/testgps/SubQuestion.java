@@ -3,8 +3,10 @@ package globalsoft.com.testgps;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,10 +34,10 @@ public class SubQuestion extends Activity implements View.OnClickListener {
     private static final String ID = "id";
     private static final String SUB_QUESTION = "subquestion";
     private static final String QUESTION_ID = "questionid";
-    private String url, questionid, subQuestionID, lastSubQuestID;
+    private String url, questionid, subQuestionID, lastSubQuestID,outletid;
 
     ArrayList<HashMap<String, String>> subquestionarray = new ArrayList<>();
-    public static ArrayList<HashMap<String, String>> subQuestOptionHolder = new ArrayList<>();
+    public static ArrayList<HashMap<String, String>> subQuestOptHolder = new ArrayList<>();
     ArrayList<String> subquest = new ArrayList<>();
     ArrayList<String> subquestid = new ArrayList<>();
     //Toolbar toolbar;
@@ -47,6 +49,7 @@ public class SubQuestion extends Activity implements View.OnClickListener {
     RadioGroup radioGroup;
     private Button buttonNext;
     private TextView textViewSubQuest, alertText;
+    HashMap<String, String> answersubquestion;
 
     //MvoQuestionnaireActivity mvo;
 
@@ -66,6 +69,7 @@ public class SubQuestion extends Activity implements View.OnClickListener {
 
         bundle = getIntent().getExtras();
         questionid = bundle.getString("QUEST_ID");
+        outletid = bundle.getString("OUTLETID");
         url = "http://www.nbappserver.com/nbpage/nbapi.php?optype=getsubquestions&questionid=" + questionid + "";
         //url = "http://populationassociationng.org/nbpage/nbapi.php?optype=getsubquestions&questionid=5";
 
@@ -105,6 +109,9 @@ public class SubQuestion extends Activity implements View.OnClickListener {
         return super.onOptionsItemSelected(item);
     }
 
+    /**This method adds the very first question in the iterator.
+    *
+    */
     private void addSubQuestion() {
         String aa;
         for (int i = 0; i < subquestionarray.size(); i++) {
@@ -152,45 +159,56 @@ public class SubQuestion extends Activity implements View.OnClickListener {
             }
             if (selectedRadio < 0) {
                 alertText.setText("Please select an option.");
-            } else if (itr.hasNext() && itrID.hasNext()) {
+            } else if (itr.hasNext()) {
                 //System.out.println("" + itr.next());
                 textViewSubQuest.setText(itr.next().toString());
                 System.out.println(radioButton.getText().toString());
                 RadioGroup dd = (RadioGroup) findViewById(R.id.radioSubQuestions);
                 dd.clearCheck();
 
-                String QUEST_ID = "questionid", QUEST_SUBQUESID = "subquestionid", QUEST_ANS = "answer";
+                String QUEST_ID = "questionid", OUTLET_ID = "outletid", QUEST_SUBQUESID = "subquestionid", QUEST_ANS = "answer";
                 HashMap<String, String> answersubquestion = new HashMap<>();
                 answersubquestion.put(QUEST_ID, questionid);
-                /*if (itrID.hasNext()) {
-                    subQuestionID = itrID.next().toString();
-                    answersubquestion.put(QUEST_SUBQUESID, subQuestionID);
-                }*/
+                answersubquestion.put(OUTLET_ID, outletid);
                 subQuestionID = itrID.next().toString();
                 answersubquestion.put(QUEST_SUBQUESID, subQuestionID);
-                //answersubquestion.put(QUEST_SUBQUESID, "" + 1);
                 answersubquestion.put(QUEST_ANS, radioButton.getText().toString());
 
-                subQuestOptionHolder.add(answersubquestion);
-                System.out.println("Value in SubQuestionHolder: " + subQuestOptionHolder);
-            }
+                subQuestOptHolder.add(answersubquestion);
+                System.out.println("Value in SubQuestionHolder (else if): " + subQuestOptHolder);
+           }
 
-            if (!itr.hasNext()) {
+            //if (!itr.hasNext())
+            else {
                 System.out.println("This is the last question...");
-                String QUEST_ID = "questionid", QUEST_SUBQUESID = "subquestionid", QUEST_ANS = "answer";
-                HashMap<String, String> answersubquestion = new HashMap<>();
+                String QUEST_ID = "questionid", OUTLET_ID = "outletid",  QUEST_SUBQUESID = "subquestionid", QUEST_ANS = "answer";
+                answersubquestion = new HashMap<>();
                 answersubquestion.put(QUEST_ID, questionid);
+                answersubquestion.put(OUTLET_ID, outletid);
                 getLastSubQuestionID();
                 answersubquestion.put(QUEST_SUBQUESID, lastSubQuestID);
                 answersubquestion.put(QUEST_ANS, radioButton.getText().toString());
 
-                subQuestOptionHolder.add(answersubquestion);
-                super.finish();
+                //subQuestOptionHolder.add(answersubquestion);
+                System.out.println("Value in SubQuestionHolder IF: " + subQuestOptHolder);
 
-                System.out.println("Value in SubQuestionHolder: " + subQuestOptionHolder);
+                Intent intent=new Intent();
+                intent.putExtra("questID",answersubquestion.put(QUEST_ID, questionid));
+                intent.putExtra("outletid",answersubquestion.put(OUTLET_ID, outletid));
+                intent.putExtra("subQuestID",answersubquestion.put(QUEST_SUBQUESID, lastSubQuestID));
+                intent.putExtra("answer",answersubquestion.put(QUEST_ANS, radioButton.getText().toString()));
+                setResult(2,intent);
+
+
+                /*Intent mIntent=new Intent(SubQuestion.this, MvoQuestionnaireActivity.class);
+                mIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                mIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(mIntent);*/
+                finish();//finishing activity
+                //moveTaskToBack(true);
+
             }
         }
-
     }
 
 
@@ -247,7 +265,7 @@ public class SubQuestion extends Activity implements View.OnClickListener {
                 } finally {
                 }
             }
-            // Log.i("SubQuestionSize", "" + subquestionarray.size());
+            Log.i("SubQuestionSize", "" + subquestionarray);
             return null;
         }
     }

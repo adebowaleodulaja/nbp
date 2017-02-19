@@ -43,7 +43,6 @@
             android:label="@string/app_name" />
         <activity android:name=".MvoQuestionnaireActivity"
             android:label="@string/app_name">
-
         </activity>
         <activity android:name=".MtoQuestionnaireActivity"
             android:label="@string/app_name">

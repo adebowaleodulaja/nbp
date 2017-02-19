@@ -69,6 +69,8 @@ public class MvoQuestionnaireActivity extends AppCompatActivity {
     HashMap<String, List<String>> listDataChild;
     ArrayList<HashMap<String, String>> questans = new ArrayList<>();
     ArrayList<HashMap<String, String>> optionHolder = new ArrayList<>();
+    private HashMap<String, String> answersubquestion;
+    public static ArrayList<HashMap<String, String>> subQuestOptionHolder = new ArrayList<>();
     //public static ArrayList<HashMap<String, String>> subQuestOptionHolder = new ArrayList<>();
 
     HashMap listDataChildStates;
@@ -107,12 +109,13 @@ public class MvoQuestionnaireActivity extends AppCompatActivity {
     private String availabilityOption[];//= {"Once a week or more", "Twice a month", "Once a quarter", "Less than once a quarter"};
     private String promotionOption[];//= {"Weekly", "Monthly", "Quarterly", "Yearly", "Never"};
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             public void uncaughtException(Thread paramThread, Throwable paramThrowable) {
-                Log.e("Error"+Thread.currentThread().getStackTrace()[2],paramThrowable.getLocalizedMessage());
+                Log.e("Error" + Thread.currentThread().getStackTrace()[2], paramThrowable.getLocalizedMessage());
             }
         });
         setContentView(R.layout.mvo_questionnaire);
@@ -218,12 +221,12 @@ public class MvoQuestionnaireActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if (optionHolder.size() <= 0) {
                     alert.showAlertDialog(MvoQuestionnaireActivity.this, "You haven't answer any of the questions!", "Nothing to save", 0);
-                } else if (optionHolder.size() < questans.size()) {
-                    alert.showAlertDialog(MvoQuestionnaireActivity.this, "You must answer all questions!\nYou've answered " + optionHolder.size()
-                           + " out of " + questans.size(), "Questionnaire", 0);
-                }
+                } //else if (optionHolder.size() < questans.size()) {
+                //alert.showAlertDialog(MvoQuestionnaireActivity.this, "You must answer all questions!\nYou've answered " + optionHolder.size()
+                //     + " out of " + questans.size(), "Questionnaire", 0);
+                //}
                 else {
-                    if (subQuest.subQuestOptionHolder.size() > 0) {
+                    if (subQuestOptionHolder.size() > 0) {
                         //System.out.println("SizeOfSubQuestionAnswer: "+subQuest.subQuestOptionHolder.size());
                         new SubmitSubQuestion().execute();
                         new SubmitQuestion().execute();
@@ -287,8 +290,7 @@ public class MvoQuestionnaireActivity extends AppCompatActivity {
         for (int i = 0; i < questans.size(); i++) {
             if (questans.get(x).get("answertype").contains(":")) {
                 answerdropdownprom = questans.get(x).get("answertype").split(":");
-            }
-            else if (questans.get(x).get("answertype").contains("-")){
+            } else if (questans.get(x).get("answertype").contains("-")) {
                 answerdropdownprom = questans.get(x).get("answertype").split("-");
             }
         }
@@ -314,13 +316,16 @@ public class MvoQuestionnaireActivity extends AppCompatActivity {
                 int a = checkedId;
                 System.out.println("Checked ID: " + a);
                 if (a == 2131492997 && getSubQuestionId(childID).equals("1")) {
+                    //Intent loadSubQuestion = new Intent(MvoQuestionnaireActivity.this, SubQuestion.class);
                     Intent loadSubQuestion = new Intent(MvoQuestionnaireActivity.this, SubQuestion.class);
                     loadSubQuestion.putExtra("QUEST_ID", getQuestionId(childID));
-                    startActivity(loadSubQuestion);
+                    loadSubQuestion.putExtra("OUTLETID", outletid);
+                    startActivityForResult(loadSubQuestion, 2);// Activity is started with requestCode 2
+                    //startActivity(loadSubQuestion);
 
-                    if (subQuest.subQuestOptionHolder.size() != 0) {
-                        subQuest.subQuestOptionHolder.clear();
-                    }
+                    /*if (subQuestOptionHolder.size() != 0 || subQuest.subQuestOptHolder.size() != 0) {
+                        subQuestOptionHolder.clear();
+                    }*/
                 }
             }
         });
@@ -417,11 +422,12 @@ public class MvoQuestionnaireActivity extends AppCompatActivity {
                 if (a == 2131492997 && getSubQuestionId(childID).equals("1")) {
                     Intent loadSubQuestion = new Intent(MvoQuestionnaireActivity.this, SubQuestion.class);
                     loadSubQuestion.putExtra("QUEST_ID", getQuestionId(childID));
-                    startActivity(loadSubQuestion);
+                    loadSubQuestion.putExtra("OUTLETID", outletid);
+                    startActivityForResult(loadSubQuestion, 2);// Activity is started with requestCode 2
 
-                    if (subQuest.subQuestOptionHolder.size() != 0) {
-                        subQuest.subQuestOptionHolder.clear();
-                    }
+                    /*if (subQuestOptionHolder.size() != 0 || subQuest.subQuestOptHolder.size() != 0) {
+                        subQuestOptionHolder.clear();
+                    }*/
                 }
             }
         });
@@ -525,12 +531,16 @@ public class MvoQuestionnaireActivity extends AppCompatActivity {
                 //optionMap.put(FILE_NAME, fileName);
                 optionHolder.add(optionMap);
                 dialog.dismiss();
+                ba1 = null;
 
 
                 Log.e("OPTION_HOLDER", "" + optionHolder);
+                Log.e("ID From activity result", "" + subQuestOptionHolder);
+               // Log.e("ba1", "" + ba1);
             }
         }
     }
+
 
     @Override
     protected void onDestroy() {
@@ -618,11 +628,31 @@ public class MvoQuestionnaireActivity extends AppCompatActivity {
         }
     }
 
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
         if (requestCode == 100 && resultCode == RESULT_OK) {
             setPic();
             uploadImage();
         }
+
+        // check if the request code is same as what is passed  here it is 2
+        if (requestCode == 2) {
+            String QUEST_ID = "questionid", OUTLET_ID = "outletid", QUEST_SUBQUESID = "subquestionid", QUEST_ANS = "answer";
+            answersubquestion = new HashMap<>();
+            String id = data.getStringExtra("questID");
+            String outletid = data.getStringExtra("outletid");
+            String subqid = data.getStringExtra("subQuestID");
+            String ans = data.getStringExtra("answer");
+
+            answersubquestion.put(QUEST_ID, id);
+            answersubquestion.put(OUTLET_ID, outletid);
+            answersubquestion.put(QUEST_SUBQUESID, subqid);
+            answersubquestion.put(QUEST_ANS, ans);
+        }
+        subQuestOptionHolder.add(answersubquestion);
+        //System.out.println("ID From activity result " + subQuestOptionHolder);
+
     }
 
     private void setPic() {
@@ -852,15 +882,17 @@ public class MvoQuestionnaireActivity extends AppCompatActivity {
                 nameValuePairs.add(new BasicNameValuePair("username", optionHolder.get(i).get("username")));
                 nameValuePairs.add(new BasicNameValuePair("gps", optionHolder.get(i).get("gps")));
                 //nameValuePairs.add(new BasicNameValuePair("gps", "" + locationLocator.latitude + " & " + locationLocator.longitude));
-                nameValuePairs.add(new BasicNameValuePair("picture", optionHolder.get(i).get("picture")));
+                if (optionHolder.get(i).get("picture") != null) {
+                    nameValuePairs.add(new BasicNameValuePair("picture", optionHolder.get(i).get("picture")));
+                }
                 nameValuePairs.add(new BasicNameValuePair("outletid", optionHolder.get(i).get("outletid")));
                 //nameValuePairs.add(new BasicNameValuePair("image", optionHolder.get(i).get("picture")));
                 //nameValuePairs.add(new BasicNameValuePair("name", ""+optionHolder.get(i).get("name")));
                 question_answer_url = "http://www.nbappserver.com/nbpage/getanswers.php";
                 //question_answer_url = "http://populationassociationng.org/nbpage/getanswers.php";
                 try {
-                    total+=i;
-                    publishProgress(""+(int)((total*100)/optionHolder.size()));
+                    total += i;
+                    publishProgress("" + (int) ((total * 100) / optionHolder.size()));
 
                     HttpClient httpclient = new DefaultHttpClient();
                     HttpPost httppost = new HttpPost(question_answer_url);
@@ -916,11 +948,34 @@ public class MvoQuestionnaireActivity extends AppCompatActivity {
             String result = "", st = "";
             String sub_question_answer_url;
 
-            for (int i = 0; i < subQuest.subQuestOptionHolder.size(); i++) {
+            if (subQuest.subQuestOptHolder.size() != 0) {
+
+                for (int i = 0; i < subQuest.subQuestOptHolder.size(); i++) {
+                    ArrayList<NameValuePair> nameValuePairs = new ArrayList<>();
+                    nameValuePairs.add(new BasicNameValuePair("questionid", subQuest.subQuestOptHolder.get(i).get("questionid")));
+                    nameValuePairs.add(new BasicNameValuePair("subquestionid", subQuest.subQuestOptHolder.get(i).get("subquestionid")));
+                    nameValuePairs.add(new BasicNameValuePair("answer", subQuest.subQuestOptHolder.get(i).get("answer")));
+                    nameValuePairs.add(new BasicNameValuePair("outletid", subQuest.subQuestOptHolder.get(i).get("outletid")));
+                    sub_question_answer_url = "http://www.nbappserver.com/nbpage/subquestionanswers.php";
+                    try {
+                        HttpClient httpclient = new DefaultHttpClient();
+                        HttpPost httppost = new HttpPost(sub_question_answer_url);
+                        httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+                        HttpResponse response = httpclient.execute(httppost);
+                        StatusLine statusLine = response.getStatusLine();
+                        st = EntityUtils.toString(response.getEntity());
+                    } catch (Exception e) {
+                        Log.v("ERROR_OCCURRED", "Error in http connection " + e.toString());
+                    }
+                }
+            }
+
+            for (int i = 0; i < subQuestOptionHolder.size(); i++) {
                 ArrayList<NameValuePair> nameValuePairs = new ArrayList<>();
-                nameValuePairs.add(new BasicNameValuePair("questionid", subQuest.subQuestOptionHolder.get(i).get("questionid")));
-                nameValuePairs.add(new BasicNameValuePair("subquestionid", subQuest.subQuestOptionHolder.get(i).get("subquestionid")));
-                nameValuePairs.add(new BasicNameValuePair("answer", subQuest.subQuestOptionHolder.get(i).get("answer")));
+                nameValuePairs.add(new BasicNameValuePair("questionid", subQuestOptionHolder.get(i).get("questionid")));
+                nameValuePairs.add(new BasicNameValuePair("subquestionid", subQuestOptionHolder.get(i).get("subquestionid")));
+                nameValuePairs.add(new BasicNameValuePair("answer", subQuestOptionHolder.get(i).get("answer")));
+                nameValuePairs.add(new BasicNameValuePair("outletid", subQuestOptionHolder.get(i).get("outletid")));
                 sub_question_answer_url = "http://www.nbappserver.com/nbpage/subquestionanswers.php";
                 try {
                     HttpClient httpclient = new DefaultHttpClient();
@@ -949,6 +1004,7 @@ public class MvoQuestionnaireActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String s) {
+            Log.i("Response From SubQuest", s);
             /*if (progressDialog.isShowing()) progressDialog.dismiss();
             Log.i("Response", s);
             if (s.equalsIgnoreCase("Success")) {

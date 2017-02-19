@@ -72,6 +72,8 @@ public class MtoQuestionnaireActivity extends AppCompatActivity {
     HashMap<String, List<String>> listDataChild;
 
     ArrayList<HashMap<String, String>> optionHolder = new ArrayList<>();
+    private HashMap<String, String> answersubquestion;
+    public static ArrayList<HashMap<String, String>> subQuestOptionHolder = new ArrayList<>();
 
     private String uname, outletid;
     private String questionString;
@@ -234,11 +236,12 @@ public class MtoQuestionnaireActivity extends AppCompatActivity {
                 if (a == 2131492997 && getSubQuestionId(childID).equals("1")){
                     Intent loadSubQuestion = new Intent(MtoQuestionnaireActivity.this, SubQuestion.class);
                     loadSubQuestion.putExtra("QUEST_ID", getQuestionId(childID));
-                    startActivity(loadSubQuestion);
+                    loadSubQuestion.putExtra("OUTLETID", outletid);
+                    startActivityForResult(loadSubQuestion, 2);// Activity is started with requestCode 2
 
-                    if (subQuest.subQuestOptionHolder.size() != 0){
-                        subQuest.subQuestOptionHolder.clear();
-                    }
+                    /*if (subQuestOptionHolder.size() != 0 || subQuest.subQuestOptHolder.size() !=0) {
+                        subQuestOptionHolder.clear();
+                    }*/
                 }
             }
         });
@@ -291,11 +294,12 @@ public class MtoQuestionnaireActivity extends AppCompatActivity {
                 if (a == 2131492997 && getSubQuestionId(childID).equals("1")){
                     Intent loadSubQuestion = new Intent(MtoQuestionnaireActivity.this, SubQuestion.class);
                     loadSubQuestion.putExtra("QUEST_ID", getQuestionId(childID));
-                    startActivity(loadSubQuestion);
+                    loadSubQuestion.putExtra("OUTLETID", outletid);
+                    startActivityForResult(loadSubQuestion, 2);// Activity is started with requestCode 2
 
-                    if (subQuest.subQuestOptionHolder.size() != 0){
-                        subQuest.subQuestOptionHolder.clear();
-                    }
+                    /*if (subQuestOptionHolder.size() != 0 || subQuest.subQuestOptHolder.size() !=0) {
+                        subQuestOptionHolder.clear();
+                    }*/
                 }
             }
         });
@@ -374,6 +378,7 @@ public class MtoQuestionnaireActivity extends AppCompatActivity {
                 optionMap.put(QUEST_GPS, "Long: " + locationLocator.longitude + " Lat: " + locationLocator.latitude);
                 optionHolder.add(optionMap);
                 dialog.dismiss();
+                ba1 = null;
 
                 Log.e("OPTION_HOLDER", "" + optionHolder);
             }
@@ -411,7 +416,7 @@ public class MtoQuestionnaireActivity extends AppCompatActivity {
                         + " out of " + questans.size(), "Questionnaire", 0);
             }
             else {
-                if (subQuest.subQuestOptionHolder.size() > 0){
+                if (subQuest.subQuestOptHolder.size() > 0){
                     //System.out.println("SizeOfSubQuestionAnswer: "+subQuest.subQuestOptionHolder.size());
                     new SubmitSubQuestion().execute();
                     new SubmitQuestion().execute();
@@ -497,6 +502,23 @@ public class MtoQuestionnaireActivity extends AppCompatActivity {
         if (requestCode == 100 && resultCode == RESULT_OK) {
             setPic();
             uploadImage();
+        }
+
+        // check if the request code is same as what is passed  here it is 2
+        if (requestCode == 2) {
+            String QUEST_ID = "questionid", OUTLET_ID = "outletid",  QUEST_SUBQUESID = "subquestionid", QUEST_ANS = "answer";
+            answersubquestion = new HashMap<>();
+            String id = data.getStringExtra("questID");
+            String outletid = data.getStringExtra("outletid");
+            String subqid = data.getStringExtra("subQuestID");
+            String ans = data.getStringExtra("answer");
+
+            answersubquestion.put(QUEST_ID, id);
+            answersubquestion.put(OUTLET_ID, outletid);
+            answersubquestion.put(QUEST_SUBQUESID, subqid);
+            answersubquestion.put(QUEST_ANS, ans);
+
+            subQuestOptionHolder.add(answersubquestion);
         }
     }
 
@@ -653,7 +675,9 @@ public class MtoQuestionnaireActivity extends AppCompatActivity {
                 nameValuePairs.add(new BasicNameValuePair("answer", optionHolder.get(i).get("answer")));
                 nameValuePairs.add(new BasicNameValuePair("username", optionHolder.get(i).get("username")));
                 nameValuePairs.add(new BasicNameValuePair("gps", optionHolder.get(i).get("gps")));
-                nameValuePairs.add(new BasicNameValuePair("picture", optionHolder.get(i).get("picture")));
+                if (optionHolder.get(i).get("picture") != null) {
+                    nameValuePairs.add(new BasicNameValuePair("picture", optionHolder.get(i).get("picture")));
+                }
                 nameValuePairs.add(new BasicNameValuePair("outletid", optionHolder.get(i).get("outletid")));
                 question_answer_url = "http://www.nbappserver.com/nbpage/getanswers.php";
                 //question_answer_url = "http://populationassociationng.org/nbpage/getanswers.php";
@@ -715,11 +739,34 @@ public class MtoQuestionnaireActivity extends AppCompatActivity {
             String result = "", st = "";
             String sub_question_answer_url;
 
-            for (int i = 0; i < subQuest.subQuestOptionHolder.size(); i++) {
+            if (subQuest.subQuestOptHolder.size() !=0){
+
+                for (int i = 0; i < subQuest.subQuestOptHolder.size(); i++) {
+                    ArrayList<NameValuePair> nameValuePairs = new ArrayList<>();
+                    nameValuePairs.add(new BasicNameValuePair("questionid", subQuest.subQuestOptHolder.get(i).get("questionid")));
+                    nameValuePairs.add(new BasicNameValuePair("subquestionid", subQuest.subQuestOptHolder.get(i).get("subquestionid")));
+                    nameValuePairs.add(new BasicNameValuePair("answer", subQuest.subQuestOptHolder.get(i).get("answer")));
+                    nameValuePairs.add(new BasicNameValuePair("outletid", subQuest.subQuestOptHolder.get(i).get("outletid")));
+                    sub_question_answer_url = "http://www.nbappserver.com/nbpage/subquestionanswers.php";
+                    try {
+                        HttpClient httpclient = new DefaultHttpClient();
+                        HttpPost httppost = new HttpPost(sub_question_answer_url);
+                        httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+                        HttpResponse response = httpclient.execute(httppost);
+                        StatusLine statusLine = response.getStatusLine();
+                        st = EntityUtils.toString(response.getEntity());
+                    } catch (Exception e) {
+                        Log.v("ERROR_OCCURRED", "Error in http connection " + e.toString());
+                    }
+                }
+            }
+
+            for (int i = 0; i < subQuestOptionHolder.size(); i++) {
                 ArrayList<NameValuePair> nameValuePairs = new ArrayList<>();
-                nameValuePairs.add(new BasicNameValuePair("questionid", subQuest.subQuestOptionHolder.get(i).get("questionid")));
-                nameValuePairs.add(new BasicNameValuePair("subquestionid", subQuest.subQuestOptionHolder.get(i).get("subquestionid")));
-                nameValuePairs.add(new BasicNameValuePair("answer", subQuest.subQuestOptionHolder.get(i).get("answer")));
+                nameValuePairs.add(new BasicNameValuePair("questionid", subQuestOptionHolder.get(i).get("questionid")));
+                nameValuePairs.add(new BasicNameValuePair("subquestionid", subQuestOptionHolder.get(i).get("subquestionid")));
+                nameValuePairs.add(new BasicNameValuePair("answer", subQuestOptionHolder.get(i).get("answer")));
+                nameValuePairs.add(new BasicNameValuePair("outletid", subQuestOptionHolder.get(i).get("outletid")));
                 sub_question_answer_url = "http://www.nbappserver.com/nbpage/subquestionanswers.php";
                 try {
                     HttpClient httpclient = new DefaultHttpClient();
@@ -732,7 +779,7 @@ public class MtoQuestionnaireActivity extends AppCompatActivity {
                     Log.v("ERROR_OCCURRED", "Error in http connection " + e.toString());
                 }
             }
-            Log.e("SubQuestion_Response", st);
+            //Log.e("SubQuestion_Response", st);
             st = st.replace("\"", "");
             result = st.equalsIgnoreCase("Success") ? "Success" : st;
 
@@ -748,7 +795,7 @@ public class MtoQuestionnaireActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String s) {
-            //new SubmitQuestion().execute();
+            Log.i("Response From SubQuest", s);
             /*if (progressDialog.isShowing()) progressDialog.dismiss();
             Log.i("Response", s);
             if (s.equalsIgnoreCase("Success")) {
