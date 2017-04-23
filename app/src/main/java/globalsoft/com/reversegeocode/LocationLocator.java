@@ -80,7 +80,7 @@ public class LocationLocator extends Activity {
             longitude = location.getLongitude();
         } else {
             //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 30000, 10, locationListenerGPS);//60 * 1000
-            locationManager.requestLocationUpdates(bestProvider, 30000, 10, locationListenerGPS);//60 * 1000
+            locationManager.requestLocationUpdates(bestProvider, 10000, 10, locationListenerGPS);//60 * 1000
         }
     }
 

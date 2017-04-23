@@ -221,11 +221,10 @@ public class MvoQuestionnaireActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if (optionHolder.size() <= 0) {
                     alert.showAlertDialog(MvoQuestionnaireActivity.this, "You haven't answer any of the questions!", "Nothing to save", 0);
-                } //else if (optionHolder.size() < questans.size()) {
-                //alert.showAlertDialog(MvoQuestionnaireActivity.this, "You must answer all questions!\nYou've answered " + optionHolder.size()
-                //     + " out of " + questans.size(), "Questionnaire", 0);
-                //}
-                else {
+                } else if (optionHolder.size() < questans.size()) {
+                    alert.showAlertDialog(MvoQuestionnaireActivity.this, "You must answer all questions!\nYou've answered " + optionHolder.size()
+                            + " out of " + questans.size(), "Questionnaire", 0);
+                } else {
                     if (subQuestOptionHolder.size() > 0) {
                         //System.out.println("SizeOfSubQuestionAnswer: "+subQuest.subQuestOptionHolder.size());
                         new SubmitSubQuestion().execute();
@@ -536,7 +535,7 @@ public class MvoQuestionnaireActivity extends AppCompatActivity {
 
                 Log.e("OPTION_HOLDER", "" + optionHolder);
                 Log.e("ID From activity result", "" + subQuestOptionHolder);
-               // Log.e("ba1", "" + ba1);
+                // Log.e("ba1", "" + ba1);
             }
         }
     }
@@ -544,7 +543,11 @@ public class MvoQuestionnaireActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+
         super.onDestroy();
+        if (subQuestOptionHolder.size() != 0 || subQuest.subQuestOptHolder.size() != 0) {
+            subQuestOptionHolder.clear();
+        }
     }
 
     @Override
@@ -796,7 +799,6 @@ public class MvoQuestionnaireActivity extends AppCompatActivity {
             listAdapter = new ExpandableListAdapter(context, listDataHeader, listDataChild);
             // setting list adapter
             expListView.setAdapter(listAdapter);
-
         }
 
         @Override
@@ -804,10 +806,10 @@ public class MvoQuestionnaireActivity extends AppCompatActivity {
             JSONParser jsonParser = new JSONParser();
             listDataHeader = new ArrayList<>();
             listDataChild = new HashMap<>();
+            int qID = 0;
 
             //get JSON string from URL
             JSONArray json = jsonParser.getMTOQuestions(mvoURL);
-
 
             try {
                 //JSONObject c = json.getJSONObject(HEADER1);
@@ -828,6 +830,7 @@ public class MvoQuestionnaireActivity extends AppCompatActivity {
                             JSONArray headers = job.getJSONArray(key);
                             List<String> questionList = new ArrayList<>();
                             for (int quest_in_headr = 0; quest_in_headr < headers.length(); quest_in_headr++) {
+                                qID += 1;
                                 JSONObject jsonHeader1 = headers.getJSONObject(quest_in_headr);
                                 question = jsonHeader1.getString(QUESTION);
                                 qid = jsonHeader1.getString(QUESTION_ID);
@@ -842,7 +845,7 @@ public class MvoQuestionnaireActivity extends AppCompatActivity {
                                 map.put(QUESTTION_PICTURE, picture);
                                 map.put(ANSWER_TYPE, anstype);
                                 questans.add(map);
-                                questionList.add(question.trim());
+                                questionList.add(qID + "." + question.trim());
                                 //Log.e("INSIDE_INNER_LOOP", question + " " + qid);
                                 //Log.e("ADD_DATA", "" + question);
                             }
@@ -853,8 +856,9 @@ public class MvoQuestionnaireActivity extends AppCompatActivity {
                             e.printStackTrace();
                         }
                     }
+                    //Log.e("VALUES_IN_QUESTANS", "" + json.length());
                 }
-                //Log.e("VALUES_IN_QUESTANS", "" + questans);
+
             } catch (JSONException e) {
                 e.printStackTrace();
             } finally {
