@@ -42,6 +42,8 @@ import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
@@ -52,6 +54,7 @@ import org.json.JSONObject;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -701,76 +704,92 @@ public class MvoQuestionnaireActivity extends AppCompatActivity {
         return image;
     }
 
-    /*
-     * Preparing the list data
-     */
-    private void prepareListData() {
-        listDataHeader = new ArrayList<>();
-        listDataChild = new HashMap<>();
+    /*This section is sending JSON data to the server*/
 
-        // Adding header data
-        listDataHeader.add("Visibility");
-        listDataHeader.add("Quality");
-        listDataHeader.add("Persuation");
-        listDataHeader.add("Availability");
-        listDataHeader.add("Affordability");
-        listDataHeader.add("Promotion");
+    private String formatDataAsJSON(){
 
-        // Adding child data
-        List<String> visibility = new ArrayList<>();
-        visibility.add("Branded NB items are clean and well maintained?");
-        visibility.add("Canopies?");
-        visibility.add("Lightboxes?");
-        visibility.add("Framed banners?");
-        visibility.add("Are there are any competitive trade infrastructures available?");
-        visibility.add("Is there on display a current NB Campaign Poster ");
-        visibility.add("Are there any outdated NB campaign Posters on display");
+        final JSONObject outletIdObject = new JSONObject();//This would be the root Object that would hold other objects and/array.
 
-        List<String> quality = new ArrayList<>();
-        quality.add("Is there a Branded NB Chiller at outlet?");
-        quality.add("Is there a NB Barcode on the Chiller?");
-        quality.add("Drinks where available cold?");
-        quality.add("Drinks where presented using same brand glasses or coasters? ");
-        //quality.add("Red 2");
-        //quality.add("The Wolverine");
+        try{
+            outletIdObject.put("OutletID", Integer.parseInt(outletid));
 
-        List<String> persuation = new ArrayList<>();
-        persuation.add("Bar staff actively offered or mentioned NB Brands?");
-        persuation.add("Bar staff are knowledgeable about NB brands?");
-        persuation.add("Bar staff are neatly dressed in Branded uniform?");
-        //persuation.add("The Canyons");
-        //persuation.add("Europa Report");
+            //Create a JSON Array Object
+            JSONArray answers = new JSONArray();
+            answers.put("Credit");
+            answers.put("Distinction");
+            answers.put("Pass");
 
-        List<String> availability = new ArrayList<>();
-        availability.add("All NB Brands/SKU are available");
-        availability.add("Are all brands seen in NB Chillers?");
-        availability.add("Drinks have been arranged in line with their corresponding chiller planogram?");
-        availability.add("Does an NB sales Executive or Van Salesman or RTMM Visit the Outlet");
-        availability.add("How often?");
-        availability.add("Are the outlet service complaints addressed and resolved on time?");
+            //Add the JSON Array child to the root Object
+            outletIdObject.put("answer", answers);
 
-        List<String> affordability = new ArrayList<>();
-        affordability.add("Visibility material communicating Brand prices can be seen?");
-        affordability.add("Communicated prices are the same as the purchase price?");
-        affordability.add("Are NB prices comparative to competitor brands?");
-        //affordability.add("The Canyons");
-        //affordability.add("Europa Report");
-
-        List<String> promotion = new ArrayList<>();
-        promotion.add("Are there any competition promotion running in the bar (i.e. Sampling, in-bar activations)?");
-        promotion.add("Is there any NB promotion currently running in the outlets?");
-        promotion.add("Is there a Promotional communication Poster visible in Outlet?");
-        promotion.add("Is the date on the poster still valid?");
-        promotion.add("What is the frequency of NB promotions run in Outlet?");
-
-        listDataChild.put(listDataHeader.get(0), visibility); // Header, Child data
-        listDataChild.put(listDataHeader.get(1), quality);
-        listDataChild.put(listDataHeader.get(2), persuation);
-        listDataChild.put(listDataHeader.get(3), availability);
-        listDataChild.put(listDataHeader.get(4), affordability);
-        listDataChild.put(listDataHeader.get(5), promotion);
+            return outletIdObject.toString();
+        }
+        catch (JSONException jsonex){
+            Log.d("Json Error", "Unable to format data to JSON");
+        }
+        return "Unable to format JSON data";
     }
 
+    private void postDataToServer(){
+
+        final String json = formatDataAsJSON();
+
+        new AsyncTask<Void, String, String>(){
+            ProgressDialog pDialog = new ProgressDialog(MvoQuestionnaireActivity.this);
+
+            @Override
+            protected void onPreExecute() {
+                pDialog.setMessage("Submitting Answer(s)\nPlease wait...");
+                pDialog.setIndeterminate(false);
+                pDialog.setMax(100);
+                pDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+                pDialog.setCancelable(false);
+                pDialog.show();
+            }
+
+            @Override
+            protected void onPostExecute(String s) {
+                if (pDialog.isShowing()) pDialog.dismiss();
+                if (pDialog != null) pDialog = null;
+                Log.e("Response", s);
+                if (s.equalsIgnoreCase("Success")) {
+                    alert.showAlertDialogForSavedQuestion(MvoQuestionnaireActivity.this, "Your question has been saved successfully!", "MVO Questionnaire", R.mipmap.nb_launcher);
+                }
+            }
+
+            @Override
+            protected void onProgressUpdate(String... values) {
+                pDialog.setProgress(Integer.parseInt(values[0]));
+            }
+
+            @Override
+            protected String doInBackground(Void... voids) {
+                return getServerResponse(json);
+            }
+        }.execute();
+    }
+
+    private String getServerResponse(String json) {
+
+        HttpPost post = new HttpPost("http://www.nbappserver.com/nbpage/getanswers.php");
+        try {
+            StringEntity entity = new StringEntity(json);
+            post.setEntity(entity);
+            post.setHeader("Content-type", "application/json");
+            DefaultHttpClient client = new DefaultHttpClient();
+            BasicResponseHandler handler = new BasicResponseHandler();
+            String response = client.execute(post, handler);
+            return response;
+        } catch (UnsupportedEncodingException e) {
+            Log.d("EntityError", e.toString());
+        }
+        catch (IOException e) {
+            Log.d("EntityError", e.toString());
+        }
+        return "Unable to contact server.";
+    }
+
+    /*Ends here...*/
 
     private class GetMVOQuestionnaire extends AsyncTask<String, Void, String> {
         private ProgressDialog progressDialog;
