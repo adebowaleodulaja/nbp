@@ -224,16 +224,21 @@ public class MvoQuestionnaireActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if (optionHolder.size() <= 0) {
                     alert.showAlertDialog(MvoQuestionnaireActivity.this, "You haven't answer any of the questions!", "Nothing to save", 0);
-                } else if (optionHolder.size() < questans.size()) {
+                } /*else if (optionHolder.size() < questans.size()) {
                     alert.showAlertDialog(MvoQuestionnaireActivity.this, "You must answer all questions!\nYou've answered " + optionHolder.size()
                             + " out of " + questans.size(), "Questionnaire", 0);
+                }*/ else if (locationLocator.longitude == 0 || locationLocator.latitude == 0) {
+                    alert.showAlertDialog(MvoQuestionnaireActivity.this, "Your location has not been captured\nYou can click on get location from the menu\nto manually capture this.", "Questionnaire", 0);
+                    //return;
                 } else {
                     if (subQuestOptionHolder.size() > 0) {
                         //System.out.println("SizeOfSubQuestionAnswer: "+subQuest.subQuestOptionHolder.size());
-                        new SubmitSubQuestion().execute();
-                        new SubmitQuestion().execute();
+                        //new SubmitSubQuestion().execute();
+                        //new SubmitQuestion().execute();
+                        formatDataAsJSON();
                     } else {
-                        new SubmitQuestion().execute();
+                        formatDataAsJSON();
+                        //new SubmitQuestion().execute();
                     }
 
                 }
@@ -706,35 +711,58 @@ public class MvoQuestionnaireActivity extends AppCompatActivity {
 
     /*This section is sending JSON data to the server*/
 
-    private String formatDataAsJSON(){
+    private String formatDataAsJSON() {
 
         final JSONObject outletIdObject = new JSONObject();//This would be the root Object that would hold other objects and/array.
 
-        try{
+        try {
             outletIdObject.put("OutletID", Integer.parseInt(outletid));
+            outletIdObject.put("gps", "Long: " + locationLocator.longitude + "Lat: " + locationLocator.latitude);
+            outletIdObject.put("username:", uname);
 
-            //Create a JSON Array Object
-            JSONArray answers = new JSONArray();
-            answers.put("Credit");
-            answers.put("Distinction");
-            answers.put("Pass");
+            //Create a JSON Object to hold answers for main questions.
+            JSONObject answers = new JSONObject();
+            for (int i = 0; i < optionHolder.size(); i++) {
+                answers.put("questionid", optionHolder.get(i).get("id"));//optionHolder.get(i).get("id")  ContentValues values=new ContentValues();
+                answers.put("answer", optionHolder.get(i).get("answer"));
+                answers = optionHolder.get(i).get("picture") != null ? answers.put("picture", optionHolder.get(i).get("picture")) : answers.put("picture", "NULL");
+            }
 
-            //Add the JSON Array child to the root Object
-            outletIdObject.put("answer", answers);
+            //Create a JSON Object to hold answers for main sub questions.
+            JSONObject subanswers = new JSONObject();
+            if (subQuest.subQuestOptHolder.size() != 0) {
+                for (int j = 0; j < subQuest.subQuestOptHolder.size(); j++) {
+                    subanswers.put("questionid", subQuest.subQuestOptHolder.get(j).get("questionid"));
+                    subanswers.put("subquestionid", subQuest.subQuestOptHolder.get(j).get("subquestionid"));
+                    subanswers.put("answer", subQuest.subQuestOptHolder.get(j).get("answer"));
+                }
+            }
+
+            //Create a JSONArray to add both answers for main questions and answers for subquestion.
+            JSONArray answersArray = new JSONArray();
+            answersArray.put(answers);
+            JSONArray subAnsArray = new JSONArray();
+            if (subQuest.subQuestOptHolder.size() != 0) {
+                subAnsArray.put(subanswers);
+            }
+
+            //Add the arrays to the parent JSONObject.
+            outletIdObject.put("answer", answersArray);
+            outletIdObject.put("subanswers", subAnsArray);
 
             return outletIdObject.toString();
-        }
-        catch (JSONException jsonex){
+        } catch (JSONException jsonex) {
             Log.d("Json Error", "Unable to format data to JSON");
         }
+        Log.d("MVOQuestActivity", "" + outletIdObject);
         return "Unable to format JSON data";
     }
 
-    private void postDataToServer(){
+    private void postDataToServer() {
 
         final String json = formatDataAsJSON();
 
-        new AsyncTask<Void, String, String>(){
+        new AsyncTask<Void, String, String>() {
             ProgressDialog pDialog = new ProgressDialog(MvoQuestionnaireActivity.this);
 
             @Override
@@ -778,12 +806,11 @@ public class MvoQuestionnaireActivity extends AppCompatActivity {
             post.setHeader("Content-type", "application/json");
             DefaultHttpClient client = new DefaultHttpClient();
             BasicResponseHandler handler = new BasicResponseHandler();
-            String response = client.execute(post, handler);
-            return response;
+            //String response = client.execute(post, handler);
+            //return response;
         } catch (UnsupportedEncodingException e) {
             Log.d("EntityError", e.toString());
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             Log.d("EntityError", e.toString());
         }
         return "Unable to contact server.";
