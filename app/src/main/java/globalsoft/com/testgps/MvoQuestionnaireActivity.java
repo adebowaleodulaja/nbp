@@ -711,7 +711,14 @@ public class MvoQuestionnaireActivity extends AppCompatActivity {
         final JSONObject outletIdObject = new JSONObject();//This would be the root Object that would hold other objects and/array.
 
         try{
+            /*
+            *OutletID
+             *gps
+             * username
+            */
             outletIdObject.put("OutletID", Integer.parseInt(outletid));
+            outletIdObject.put("gps", "Long: "+locationLocator.longitude +"Lat: "+locationLocator.latitude);
+            outletIdObject.put("username", uname);
 
             //Create a JSON Array Object
             JSONArray answers = new JSONArray();
