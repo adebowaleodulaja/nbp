@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.widget.Toast;
 
 import globalsoft.com.dialoginterface.AlertDialogBuilder;
 
@@ -82,6 +83,19 @@ public class LocationLocator extends Activity {
             //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 30000, 10, locationListenerGPS);//60 * 1000
             locationManager.requestLocationUpdates(bestProvider, 10000, 10, locationListenerGPS);//60 * 1000
         }
+    }
+
+    public void forceGPS() {
+        criteria = new Criteria();
+        bestProvider = String.valueOf(locationManager.getBestProvider(criteria, true));
+
+        //Location location = locationManager.getLastKnownLocation(bestProvider);//provider_info
+
+        if (!checkLocation())
+            return;
+        locationManager.requestLocationUpdates(bestProvider, 5000, 10, locationListenerGPS);//60 * 1000
+        Toast.makeText(context, longitude + "  " + latitude, Toast.LENGTH_LONG).show();
+
     }
 
     @Override

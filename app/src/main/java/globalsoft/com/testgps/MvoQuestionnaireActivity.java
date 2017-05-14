@@ -74,7 +74,6 @@ public class MvoQuestionnaireActivity extends AppCompatActivity {
     ArrayList<HashMap<String, String>> optionHolder = new ArrayList<>();
     private HashMap<String, String> answersubquestion;
     public static ArrayList<HashMap<String, String>> subQuestOptionHolder = new ArrayList<>();
-    //public static ArrayList<HashMap<String, String>> subQuestOptionHolder = new ArrayList<>();
 
     HashMap listDataChildStates;
 
@@ -98,6 +97,7 @@ public class MvoQuestionnaireActivity extends AppCompatActivity {
 
 
     int selectedRadio;
+    int initValue = 0;
     String question, qid, subquestid, picture, anstype;
     public int childID = 0;
     private String uname, outletid;
@@ -229,15 +229,17 @@ public class MvoQuestionnaireActivity extends AppCompatActivity {
                             + " out of " + questans.size(), "Questionnaire", 0);
                 } else {
                     if (subQuestOptionHolder.size() > 0) {
-                        //System.out.println("SizeOfSubQuestionAnswer: "+subQuest.subQuestOptionHolder.size());
-                        new SubmitSubQuestion().execute();
-                        new SubmitQuestion().execute();
+                        //new SubmitSubQuestion().execute();
+                        //new SubmitQuestion().execute();
+                        //formatDataAsJSON();
+                        postDataToServer();
                     } else {
-                        new SubmitQuestion().execute();
+                        //formatDataAsJSON();
+                        postDataToServer();
+                        //new SubmitQuestion().execute();
                     }
 
                 }
-
                 //Toast.makeText(getApplicationContext(), "Questionnaire has been saved", Toast.LENGTH_LONG).show();
             }
         });
@@ -472,6 +474,7 @@ public class MvoQuestionnaireActivity extends AppCompatActivity {
 
     class CustomListener implements View.OnClickListener {
         private final Dialog dialog;
+        AlertDialogBuilder alert1 = new AlertDialogBuilder();
 
         public CustomListener(Dialog dialog) {
             this.dialog = dialog;
@@ -513,6 +516,9 @@ public class MvoQuestionnaireActivity extends AppCompatActivity {
             else if (loadPicture(childID).equals("1NO") && radioButton.getText().toString().equals("No") && mImageView.getDrawable() == null) {
                 alert.setText("Image can not be empty if your option is \"No\"");
                 return;
+            } else if (locationLocator.longitude == 0 || locationLocator.latitude == 0) {
+                alert1.showAlertDialog(MvoQuestionnaireActivity.this, "Your location has not been captured\nYou can click on get location from the menu\nto manually capture this.", "Questionnaire", 0);
+                //return;
             } else {
                 String QUEST_ANS = "answer", QUEST_USERNAME = "username", QUEST_OUTLETID = "outletid", QUEST_PIC = "picture", QUEST_ID = "id", QUEST_GPS = "gps";//, FILE_NAME = "name";
                 //String fileName = ""+System.currentTimeMillis();
@@ -573,6 +579,8 @@ public class MvoQuestionnaireActivity extends AppCompatActivity {
         } else if (id == R.id.action_about) {
             String version = "Version " + BuildConfig.VERSION_NAME;
             alert.showAlertDialog(MvoQuestionnaireActivity.this, version, "About", R.mipmap.nb_launcher);
+        } else if (id == R.id.action_forcelocation) {
+            locationLocator.forceGPS();
         }
 
 
@@ -655,8 +663,10 @@ public class MvoQuestionnaireActivity extends AppCompatActivity {
             answersubquestion.put(OUTLET_ID, outletid);
             answersubquestion.put(QUEST_SUBQUESID, subqid);
             answersubquestion.put(QUEST_ANS, ans);
+            subQuestOptionHolder.add(answersubquestion);
         }
-        subQuestOptionHolder.add(answersubquestion);
+        //if (subQuestOptionHolder.size() != 0)
+
         //System.out.println("ID From activity result " + subQuestOptionHolder);
 
     }
@@ -706,35 +716,86 @@ public class MvoQuestionnaireActivity extends AppCompatActivity {
 
     /*This section is sending JSON data to the server*/
 
-    private String formatDataAsJSON(){
+    private String formatDataAsJSON() {
 
         final JSONObject outletIdObject = new JSONObject();//This would be the root Object that would hold other objects and/array.
 
-        try{
-            outletIdObject.put("OutletID", Integer.parseInt(outletid));
+        try {
+            outletIdObject.put("outletid", Integer.parseInt(outletid));
+            outletIdObject.put("gps", "Long: " + locationLocator.longitude + " Lat: " + locationLocator.latitude);
+            outletIdObject.put("username", uname);
 
-            //Create a JSON Array Object
-            JSONArray answers = new JSONArray();
-            answers.put("Credit");
-            answers.put("Distinction");
-            answers.put("Pass");
+            JSONArray answersArray = new JSONArray();
+            ArrayList answersArrayList = new ArrayList();
+            for (int i = 0; i < optionHolder.size(); i++) {
+                //Create a JSON Object to hold answers for main questions.
+                JSONObject answers = new JSONObject();
+                //Log.e("MVOQuestionaire", "Inside for Loop..");
+                answers.put("questionid", Integer.parseInt(optionHolder.get(i).get("id")));//optionHolder.get(i).get("id")  ContentValues values=new ContentValues();
+                answers.put("answer", optionHolder.get(i).get("answer"));
+                if (optionHolder.get(i).get("picture") != null) {
+                    answers.put("picture", optionHolder.get(i).get("picture").toString());
+                } else {
+                    answers.put("picture", null);
+                }
+                answersArrayList.add(answers);
 
-            //Add the JSON Array child to the root Object
-            outletIdObject.put("answer", answers);
+            }
+            Log.e("MVOQuestionaire", "Array List size: " + answersArrayList.size());
+
+            //Looping through the Array List and keep adding values to the answersArray object.
+            for (int k = 0; k < answersArrayList.size(); k++) {
+                answersArray.put(answersArrayList.get(k));
+            }
+
+            JSONArray subAnsArray = new JSONArray();
+            ArrayList subAnsArrayList = new ArrayList();
+            if (subQuest.subQuestOptHolder.size() > 0) {
+                for (int j = 0; j < subQuest.subQuestOptHolder.size(); j++) {
+                    //Create a JSON Object to hold answers for main sub questions.
+                    JSONObject subanswers = new JSONObject();
+                    subanswers.put("questionid", Integer.parseInt(subQuest.subQuestOptHolder.get(j).get("questionid")));
+                    subanswers.put("subquestionid", Integer.parseInt(subQuest.subQuestOptHolder.get(j).get("subquestionid")));
+                    subanswers.put("answer", subQuest.subQuestOptHolder.get(j).get("answer"));
+                    subAnsArrayList.add(subanswers);
+                }
+            }
+
+            if (subQuestOptionHolder.size() != 0) {
+                for (int j = 0; j < subQuestOptionHolder.size(); j++) {
+                    //Create a JSON Object to hold answers for main sub questions.
+                    JSONObject subanswers = new JSONObject();
+                    subanswers.put("questionid", Integer.parseInt(subQuestOptionHolder.get(j).get("questionid")));
+                    subanswers.put("subquestionid", Integer.parseInt(subQuestOptionHolder.get(j).get("subquestionid")));
+                    subanswers.put("answer", subQuestOptionHolder.get(j).get("answer"));
+                    //Create a JSONArray to add answers for subquestion.
+                    subAnsArrayList.add(subanswers);
+                }
+
+            }
+
+            for (int k = 0; k < subAnsArrayList.size(); k++) {
+                subAnsArray.put(subAnsArrayList.get(k));
+            }
+
+            //Add the arrays to the parent JSONObject.
+            outletIdObject.put("answers", answersArray);
+            outletIdObject.put("subanswers", subAnsArray);
+            Log.e("MVOQuestionaire", outletIdObject.toString(1));
 
             return outletIdObject.toString();
-        }
-        catch (JSONException jsonex){
+        } catch (JSONException jsonex) {
             Log.d("Json Error", "Unable to format data to JSON");
         }
+        //Log.e("MVOQuestActivity", "" + outletIdObject.toString());
         return "Unable to format JSON data";
     }
 
-    private void postDataToServer(){
+    private void postDataToServer() {
 
         final String json = formatDataAsJSON();
 
-        new AsyncTask<Void, String, String>(){
+        new AsyncTask<Void, String, String>() {
             ProgressDialog pDialog = new ProgressDialog(MvoQuestionnaireActivity.this);
 
             @Override
@@ -751,9 +812,19 @@ public class MvoQuestionnaireActivity extends AppCompatActivity {
             protected void onPostExecute(String s) {
                 if (pDialog.isShowing()) pDialog.dismiss();
                 if (pDialog != null) pDialog = null;
-                Log.e("Response", s);
-                if (s.equalsIgnoreCase("Success")) {
+                String statusMessage = "";
+                Log.e("Response From Server", s);
+                try {
+                    JSONObject responseFromServer = new JSONObject(s);
+                    statusMessage = responseFromServer.getString("status");
+                    Log.e("Status ", statusMessage);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                if (statusMessage.equalsIgnoreCase("Success")) {
                     alert.showAlertDialogForSavedQuestion(MvoQuestionnaireActivity.this, "Your question has been saved successfully!", "MVO Questionnaire", R.mipmap.nb_launcher);
+                } else {
+                    alert.showAlertDialogForSavedQuestion(MvoQuestionnaireActivity.this, "An error occurred while saving your answer(s)", "MVO Questionnaire", R.mipmap.nb_launcher);
                 }
             }
 
@@ -764,6 +835,9 @@ public class MvoQuestionnaireActivity extends AppCompatActivity {
 
             @Override
             protected String doInBackground(Void... voids) {
+                initValue += 1;
+                publishProgress("" + ((initValue * 100) / optionHolder.size()));
+                Log.e("MVOJSONData", json);
                 return getServerResponse(json);
             }
         }.execute();
@@ -782,8 +856,7 @@ public class MvoQuestionnaireActivity extends AppCompatActivity {
             return response;
         } catch (UnsupportedEncodingException e) {
             Log.d("EntityError", e.toString());
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             Log.d("EntityError", e.toString());
         }
         return "Unable to contact server.";

@@ -3,13 +3,21 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".MvoQuestionnaireActivity">
 
-    <item android:id="@+id/action_about"
-        android:title="About"
+    <item
+        android:id="@+id/action_about"
         android:orderInCategory="100"
+        android:title="About"
         app:showAsAction="never" />
 
-    <item android:id="@+id/action_exit"
-        android:title="Exit"
+    <item
+        android:id="@+id/action_forcelocation"
         android:orderInCategory="100"
+        android:title="Get Location"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_exit"
+        android:orderInCategory="100"
+        android:title="Exit"
         app:showAsAction="never" />
 </menu>
