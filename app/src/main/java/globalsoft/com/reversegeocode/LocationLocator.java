@@ -75,11 +75,11 @@ public class LocationLocator extends Activity {
         if (!checkLocation()) return;
         // provider_info = LocationManager.GPS_PROVIDER;
         // provider_info = LocationManager.NETWORK_PROVIDER;
-        if (location != null) {//locationManager != null
+        /*if (location != null) {//locationManager != null
             //Location location = locationManager.getLastKnownLocation(provider_info);//This was where I have this b4
             latitude = location.getLatitude();
             longitude = location.getLongitude();
-        } else {
+        }*/ else {
             //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 30000, 10, locationListenerGPS);//60 * 1000
             locationManager.requestLocationUpdates(bestProvider, 10000, 10, locationListenerGPS);//60 * 1000
         }

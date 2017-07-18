@@ -53,6 +53,25 @@ public class AlertDialogBuilder {
         builder.show();
     }
 
+    public void showAlertDialogForNonSavedQuestion(Context context, String message, String title, int icon) {
+        // 1. Instantiate an AlertDialog.Builder with its constructor
+        builder = new AlertDialog.Builder(context);
+        // 2. Chain together various setter methods to set the dialog characteristics
+        builder.setMessage(message)
+                .setTitle(title)
+                .setIcon(icon);
+        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                //dialog.dismiss();
+                //Process.killProcess(Process.myPid());
+            }
+        });
+        builder.setCancelable(false);
+        // 3. Get the AlertDialog from create()
+        //android.support.v7.app.AlertDialog dialog = builder.create();
+        builder.show();
+    }
+
     public void showAlertDialogWithOption(Context context, String message, String title, int icon) {
         builder = new AlertDialog.Builder(context);
         builder.setMessage(message)

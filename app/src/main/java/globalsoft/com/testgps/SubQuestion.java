@@ -34,7 +34,7 @@ public class SubQuestion extends Activity implements View.OnClickListener {
     private static final String ID = "id";
     private static final String SUB_QUESTION = "subquestion";
     private static final String QUESTION_ID = "questionid";
-    private String url, questionid, subQuestionID, lastSubQuestID,outletid;
+    private String url, questionid, subQuestionID, lastSubQuestID, outletid;
 
     ArrayList<HashMap<String, String>> subquestionarray = new ArrayList<>();
     public static ArrayList<HashMap<String, String>> subQuestOptHolder = new ArrayList<>();
@@ -109,9 +109,9 @@ public class SubQuestion extends Activity implements View.OnClickListener {
         return super.onOptionsItemSelected(item);
     }
 
-    /**This method adds the very first question in the iterator.
-    *
-    */
+    /**
+     * This method adds the very first question in the iterator.
+     */
     private void addSubQuestion() {
         String aa;
         for (int i = 0; i < subquestionarray.size(); i++) {
@@ -166,6 +166,7 @@ public class SubQuestion extends Activity implements View.OnClickListener {
                 RadioGroup dd = (RadioGroup) findViewById(R.id.radioSubQuestions);
                 dd.clearCheck();
 
+
                 String QUEST_ID = "questionid", OUTLET_ID = "outletid", QUEST_SUBQUESID = "subquestionid", QUEST_ANS = "answer";
                 HashMap<String, String> answersubquestion = new HashMap<>();
                 answersubquestion.put(QUEST_ID, questionid);
@@ -176,12 +177,12 @@ public class SubQuestion extends Activity implements View.OnClickListener {
 
                 subQuestOptHolder.add(answersubquestion);
                 System.out.println("Value in SubQuestionHolder (else if): " + subQuestOptHolder);
-           }
+            }
 
             //if (!itr.hasNext())
             else {
                 System.out.println("This is the last question...");
-                String QUEST_ID = "questionid", OUTLET_ID = "outletid",  QUEST_SUBQUESID = "subquestionid", QUEST_ANS = "answer";
+                String QUEST_ID = "questionid", OUTLET_ID = "outletid", QUEST_SUBQUESID = "subquestionid", QUEST_ANS = "answer";
                 answersubquestion = new HashMap<>();
                 answersubquestion.put(QUEST_ID, questionid);
                 answersubquestion.put(OUTLET_ID, outletid);
@@ -190,14 +191,14 @@ public class SubQuestion extends Activity implements View.OnClickListener {
                 answersubquestion.put(QUEST_ANS, radioButton.getText().toString());
 
                 //subQuestOptionHolder.add(answersubquestion);
-                System.out.println("Value in SubQuestionHolder IF: " + subQuestOptHolder);
+                //System.out.println("Value in SubQuestionHolder IF: " + subQuestOptHolder);
 
-                Intent intent=new Intent();
-                intent.putExtra("questID",answersubquestion.put(QUEST_ID, questionid));
-                intent.putExtra("outletid",answersubquestion.put(OUTLET_ID, outletid));
-                intent.putExtra("subQuestID",answersubquestion.put(QUEST_SUBQUESID, lastSubQuestID));
-                intent.putExtra("answer",answersubquestion.put(QUEST_ANS, radioButton.getText().toString()));
-                setResult(2,intent);
+                Intent intent = new Intent();
+                intent.putExtra("questID", answersubquestion.put(QUEST_ID, questionid));
+                intent.putExtra("outletid", answersubquestion.put(OUTLET_ID, outletid));
+                intent.putExtra("subQuestID", answersubquestion.put(QUEST_SUBQUESID, lastSubQuestID));
+                intent.putExtra("answer", answersubquestion.put(QUEST_ANS, radioButton.getText().toString()));
+                setResult(2, intent);
 
 
                 /*Intent mIntent=new Intent(SubQuestion.this, MvoQuestionnaireActivity.class);

@@ -494,12 +494,31 @@ public class MvoQuestionnaireActivity extends AppCompatActivity {
                 radioButton = (RadioButton) dialog.findViewById(selectedRadio);
             }
             TextView alert = (TextView) dialog.findViewById(R.id.textAlert);
-            /*for (int i = 0; i < optionHolder.size(); i++) {
+            //Checking to see if a question has previously been answered.
+            for (int i = 0; i < optionHolder.size(); i++) {
                 if (optionHolder.get(i).get("id").equals(getQuestionId(childID))) {
-                    alert.setText("You've already answered this question!\nPress cancel to answer a new question");
+                    optionHolder.remove(i);
+
+                    if (subQuestOptionHolder.size() != 0) {
+                        for (int k = 0; k < subQuestOptionHolder.size(); k++) {
+                            if (subQuestOptionHolder.get(k).get("questionid").equals(getQuestionId(childID))) {
+                                subQuestOptionHolder.remove(k);
+                            }
+                        }
+                    }
+
+                    if (SubQuestion.subQuestOptHolder.size() != 0) {
+                        for (int j = 0; j < SubQuestion.subQuestOptHolder.size(); j++) {
+                            if (SubQuestion.subQuestOptHolder.get(j).get("questionid").equals(getQuestionId(childID))) {
+                                SubQuestion.subQuestOptHolder.remove(j);
+                                return;
+                            }
+                        }
+                    }
+                    //alert.setText("You've already answered this question!\nPress cancel to answer a new question");
                     return;
                 }
-            }*/
+            }
 
             if (selectedRadio < 0) {
                 alert.setText("Please select an option.");
@@ -517,12 +536,16 @@ public class MvoQuestionnaireActivity extends AppCompatActivity {
                 alert.setText("Image can not be empty if your option is \"No\"");
                 return;
             } else if (locationLocator.longitude == 0 || locationLocator.latitude == 0) {
+                Log.i("MVOQuestionnaire", "Longitude: " + locationLocator.longitude);
+                Log.i("MVOQuestionnaire", "Latitude: " + locationLocator.latitude);
                 alert1.showAlertDialog(MvoQuestionnaireActivity.this, "Your location has not been captured\nYou can click on get location from the menu\nto manually capture this.", "Questionnaire", 0);
                 //return;
             } else {
+                Log.i("MVOQuestionnaire", "Longitude: " + locationLocator.longitude);
+                Log.i("MVOQuestionnaire", "Latitude: " + locationLocator.latitude);
                 String QUEST_ANS = "answer", QUEST_USERNAME = "username", QUEST_OUTLETID = "outletid", QUEST_PIC = "picture", QUEST_ID = "id", QUEST_GPS = "gps";//, FILE_NAME = "name";
                 //String fileName = ""+System.currentTimeMillis();
-                Double gps_val = locationLocator.longitude;
+                //Double gps_val = locationLocator.longitude;
 
                 HashMap<String, String> optionMap = new HashMap<>();
                 optionMap.put(QUEST_ID, getQuestionId(childID));
@@ -653,6 +676,7 @@ public class MvoQuestionnaireActivity extends AppCompatActivity {
         // check if the request code is same as what is passed  here it is 2
         if (requestCode == 2) {
             String QUEST_ID = "questionid", OUTLET_ID = "outletid", QUEST_SUBQUESID = "subquestionid", QUEST_ANS = "answer";
+
             answersubquestion = new HashMap<>();
             String id = data.getStringExtra("questID");
             String outletid = data.getStringExtra("outletid");
@@ -818,14 +842,18 @@ public class MvoQuestionnaireActivity extends AppCompatActivity {
                     JSONObject responseFromServer = new JSONObject(s);
                     statusMessage = responseFromServer.getString("status");
                     Log.e("Status ", statusMessage);
+
+                    if (statusMessage.equalsIgnoreCase("Success")) {
+                        alert.showAlertDialogForSavedQuestion(MvoQuestionnaireActivity.this, "Your question has been saved successfully!", "MVO Questionnaire", R.mipmap.nb_launcher);
+                    } else {
+                        statusMessage = responseFromServer.getString("message");
+                        alert.showAlertDialogForNonSavedQuestion(MvoQuestionnaireActivity.this, statusMessage, "MVO Questionnaire", R.mipmap.nb_launcher);
+                        //alert.showAlertDialogForSavedQuestion(MvoQuestionnaireActivity.this, "An error occurred while saving your answer(s)", "MVO Questionnaire", R.mipmap.nb_launcher);
+                    }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                if (statusMessage.equalsIgnoreCase("Success")) {
-                    alert.showAlertDialogForSavedQuestion(MvoQuestionnaireActivity.this, "Your question has been saved successfully!", "MVO Questionnaire", R.mipmap.nb_launcher);
-                } else {
-                    alert.showAlertDialogForSavedQuestion(MvoQuestionnaireActivity.this, "An error occurred while saving your answer(s)", "MVO Questionnaire", R.mipmap.nb_launcher);
-                }
+
             }
 
             @Override
