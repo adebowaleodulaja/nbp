@@ -99,7 +99,7 @@ public class MvoQuestionnaireActivity extends AppCompatActivity {
     int selectedRadio;
     int initValue = 0;
     String question, qid, subquestid, picture, anstype;
-    public int childID = 0;
+    public int childID;
     private String uname, outletid;
     private String HeaderString;
     private static final String mvoURL = "http://www.nbappserver.com/nbpage/nbapi.php?optype=questions&outlettype=MVO";
@@ -223,7 +223,7 @@ public class MvoQuestionnaireActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (optionHolder.size() <= 0) {
-                    alert.showAlertDialog(MvoQuestionnaireActivity.this, "You haven't answer any of the questions!", "Nothing to save", 0);
+                    alert.showAlertDialog(MvoQuestionnaireActivity.this, "You haven't answered any of the questions!", "Nothing to save", 0);
                 } else if (optionHolder.size() < questans.size()) {
                     alert.showAlertDialog(MvoQuestionnaireActivity.this, "You must answer all questions!\nYou've answered " + optionHolder.size()
                             + " out of " + questans.size(), "Questionnaire", 0);
@@ -282,15 +282,15 @@ public class MvoQuestionnaireActivity extends AppCompatActivity {
         return answertype;
     }
 
-    public String[] loadAnsAvailDropDown(int x) {
+ /*   public String[] loadAnsAvailDropDown(int x) {
         //String[] answerdropdown;
         for (int i = 0; i < questans.size(); i++) {
             answerdropdown = questans.get(x).get("answertype").split("-");
         }
         return answerdropdown;
-    }
+    }*/
 
-    public String[] loadAnsPromDropDown(int x) {
+    public String[] loadDynamicOption(int x) {
         for (int i = 0; i < questans.size(); i++) {
             if (questans.get(x).get("answertype").contains(":")) {
                 answerdropdownprom = questans.get(x).get("answertype").split(":");
@@ -353,6 +353,24 @@ public class MvoQuestionnaireActivity extends AppCompatActivity {
         dialog.setCancelable(false);
         dialog.show();
 
+        //Checking to see if a question has already been answered.
+        for (int i = 0; i < optionHolder.size(); i++) {
+            //if (optionHolder.get(i).get("id").equals(getQuestionId(childID))) {
+                //Set the option that was selected for this particular Question.
+                if (optionHolder.get(i).get("answer").equals("No") && optionHolder.get(i).get("id").equals(getQuestionId(childID))) {
+                    // Get the layout inflater
+                    //RadioGroup radioGroup1 = (RadioGroup) view.findViewById(R.id.radioOption);
+                    radioGroup.check(R.id.radioNo);
+                }
+            else if (optionHolder.get(i).get("answer").equals("Yes") && optionHolder.get(i).get("id").equals(getQuestionId(childID))){
+                    radioGroup.check(R.id.radioYes);
+                }
+            //}
+        }
+
+        //Call setOptionForAlreadyAnsweredQuestion here
+        //setOptionForAlreadyAnsweredQuestion();
+
         Button theButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
         theButton.setOnClickListener(new CustomListener(dialog));
 
@@ -367,8 +385,8 @@ public class MvoQuestionnaireActivity extends AppCompatActivity {
         TextView textv = (TextView) view.findViewById(R.id.textQuestion);
         textv.setText(questionText);
 
-        availabilityOption = loadAnsPromDropDown(childID);
-        promotionOption = loadAnsPromDropDown(childID);
+        availabilityOption = loadDynamicOption(childID);
+        promotionOption = loadDynamicOption(childID);
 
         if (HeaderString.equalsIgnoreCase("Availability")) {
             spinner = (Spinner) view.findViewById(R.id.availabilityOption);
@@ -400,6 +418,16 @@ public class MvoQuestionnaireActivity extends AppCompatActivity {
         AlertDialog dialog = builder.create();
         dialog.setCancelable(false);
         dialog.show();
+
+        //Checking to see if a question has already been answered.
+        /*for (int i = 0; i < optionHolder.size(); i++) {
+            if (optionHolder.get(i).get("answer").equals("No") && optionHolder.get(i).get("id").equals(getQuestionId(childID))) {
+                spinner.setSelection(0);
+            }
+            else if (optionHolder.get(i).get("answer").equals("Yes") && optionHolder.get(i).get("id").equals(getQuestionId(childID))){
+               // radioGroup.check(R.id.radioYes);
+            }
+        }*/
 
         Button theButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
         theButton.setOnClickListener(new CustomListener(dialog));
@@ -466,6 +494,15 @@ public class MvoQuestionnaireActivity extends AppCompatActivity {
         AlertDialog dialog = builder.create();
         dialog.setCancelable(false);
         dialog.show();
+        //Checking to see if a question has already been answered.
+        for (int i = 0; i < optionHolder.size(); i++) {
+            if (optionHolder.get(i).get("answer").equals("No") && optionHolder.get(i).get("id").equals(getQuestionId(childID))) {
+                radioGroup.check(R.id.radioNo);
+            }
+            else if (optionHolder.get(i).get("answer").equals("Yes") && optionHolder.get(i).get("id").equals(getQuestionId(childID))){
+                radioGroup.check(R.id.radioYes);
+            }
+        }
         Button theButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
         theButton.setOnClickListener(new CustomListener(dialog));
 
@@ -736,6 +773,31 @@ public class MvoQuestionnaireActivity extends AppCompatActivity {
         mCurrentPhotoPath = image.getAbsolutePath();
         //Log.e("Getpath", "Cool" + mCurrentPhotoPath);
         return image;
+    }
+
+    private void setOptionForAlreadyAnsweredQuestion() {
+        for (int i = 0; i < optionHolder.size(); i++) {
+            // if (optionHolder.get(i).get("id").equals(getQuestionId(childID))) {
+            //Set the option that was selected for this particular Question.
+            if (optionHolder.get(i).get("answer").equals("No")) {
+                Log.e("Inside SetOption", "Aaaaaaaa");
+                // Get the layout inflater
+                LayoutInflater inflater = getLayoutInflater();
+                View view = inflater.inflate(R.layout.questonnaireloader, null);
+                RadioGroup radioGroup = (RadioGroup) view.findViewById(R.id.radioOption);
+                radioGroup.check(R.id.radioNo);
+            }
+
+                /*if (subQuestOptionHolder.size() != 0) {
+                    for (int k = 0; k < subQuestOptionHolder.size(); k++) {
+                        if (subQuestOptionHolder.get(k).get("questionid").equals(getQuestionId(childID))) {
+                            subQuestOptionHolder.remove(k);
+                        }
+                    }
+                }*/
+            // return;
+        }
+        //}
     }
 
     /*This section is sending JSON data to the server*/
